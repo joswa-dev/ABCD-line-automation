@@ -75,8 +75,15 @@ fig = px.bar(
 )
 
 fig.update_layout(
-    margin=dict(l=20, r=20, t=10, b=10),
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    margin=dict(l=10, r=10, t=40, b=10),
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.1,
+        xanchor="center",
+        x=0.5,
+        title_text="" # This completely deletes the misplaced word "Type"
+    ),
     height=280
 )
 st.plotly_chart(fig, use_container_width=True)
