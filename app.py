@@ -26,17 +26,54 @@ st.markdown("<h2 style='text-align: center; color: #0D5C75;'>🏭 PRICOL UNIT II
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 2. OPERATOR INPUT SIDEBAR (No IoT Required)
+# 2. DYNAMIC MACHINE DATABASE SEEDING
 # ---------------------------------------------------------
-st.sidebar.header("🕹️ Shift Micro-Logging")
-selected_machine = st.sidebar.selectbox("Select Machine", ["Makino-01 (Dual Pallet)", "Makino-02", "Line-B CNC"])
-pb_count = st.sidebar.number_input("Pump Body (PB 444) Count", min_value=0, value=200)
-pc_count = st.sidebar.number_input("Pressure Cover (PC) Count", min_value=0, value=100)
-downtime_mins = st.sidebar.number_input("Unplanned Downtime (Minutes)", min_value=0, value=45)
-rejections = st.sidebar.number_input("Rejections / Scrap", min_value=0, value=4)
+# Pre-configured baseline stats for different machines to show dynamic switching
+machine_configs = {
+    "Makino-01 (Dual Pallet)": {
+        "base_pb": 200, "base_pc": 100, "base_downtime": 45, "base_scrap": 4,
+        "face_mill_base": 820, "driller_base": 310,
+        "timeline": [
+            dict(Task="Production", Start="2026-07-27 06:00", Finish="2026-07-27 09:30", Status="Running"),
+            dict(Task="Tool Change / Maintenance", Start="2026-07-27 09:30", Finish="2026-07-27 10:15", Status="Downtime"),
+            dict(Task="Production", Start="2026-07-27 10:15", Finish="2026-07-27 14:00", Status="Running"),
+        ]
+    },
+    "Makino-02 (Dual Pallet)": {
+        "base_pb": 160, "base_pc": 160, "base_downtime": 20, "base_scrap": 2,
+        "face_mill_base": 1100, "driller_base": 450,
+        "timeline": [
+            dict(Task="Production", Start="2026-07-27 06:00", Finish="2026-07-27 11:00", Status="Running"),
+            dict(Task="Chip Clearance", Start="2026-07-27 11:00", Finish="2026-07-27 11:20", Status="Downtime"),
+            dict(Task="Production", Start="2026-07-27 11:20", Finish="2026-07-27 14:00", Status="Running"),
+        ]
+    },
+    "Line-B CNC": {
+        "base_pb": 240, "base_pc": 0, "base_downtime": 10, "base_scrap": 1,
+        "face_mill_base": 400, "driller_base": 150,
+        "timeline": [
+            dict(Task="Production", Start="2026-07-27 06:00", Finish="2026-07-27 13:50", Status="Running"),
+            dict(Task="Minor Stop", Start="2026-07-27 13:50", Finish="2026-07-27 14:00", Status="Downtime"),
+        ]
+    }
+}
 
 # ---------------------------------------------------------
-# 3. OEE MATHEMATICAL ENGINE
+# 3. OPERATOR INPUT SIDEBAR (Fully Dynamic Controls)
+# ---------------------------------------------------------
+st.sidebar.header("🕹️ Shift Micro-Logging")
+selected_machine = st.sidebar.selectbox("Select Machine", list(machine_configs.keys()))
+
+# Get initial baseline values based on the selected machine
+cfg = machine_configs[selected_machine]
+
+pb_count = st.sidebar.number_input("Pump Body (PB 444) Count", min_value=0, value=cfg["base_pb"], key=f"pb_{selected_machine}")
+pc_count = st.sidebar.number_input("Pressure Cover (PC) Count", min_value=0, value=cfg["base_pc"], key=f"pc_{selected_machine}")
+downtime_mins = st.sidebar.number_input("Unplanned Downtime (Mins)", min_value=0, value=cfg["base_downtime"], key=f"dt_{selected_machine}")
+rejections = st.sidebar.number_input("Rejections / Scrap", min_value=0, value=cfg["base_scrap"], key=f"sc_{selected_machine}")
+
+# ---------------------------------------------------------
+# 4. LIVE OEE MATHEMATICAL ENGINE
 # ---------------------------------------------------------
 shift_length_mins = 480 # 8 hour shift
 operating_time = max(0, shift_length_mins - downtime_mins)
@@ -50,7 +87,7 @@ quality = ((total_parts - rejections) / total_parts * 100) if total_parts > 0 el
 oee = (availability / 100) * (performance / 100) * (quality / 100) * 100
 
 # ---------------------------------------------------------
-# 4. KPI METRICS ROW
+# 5. KPI METRICS ROW
 # ---------------------------------------------------------
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Overall OEE", f"{oee:.1f}%", delta=f"{oee-75:.1f}% vs Target")
@@ -61,18 +98,15 @@ col4.metric("Quality Rate", f"{quality:.1f}%")
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 5. MACHINE TIMELINE (GANTT CHART)
+# 6. DYNAMIC MACHINE TIMELINE (GANTT CHART)
 # ---------------------------------------------------------
-st.subheader("⏱️ Machine Shift Timeline & State Analysis")
+st.subheader(f"⏱️ {selected_machine} Shift Timeline & State Analysis")
 
-timeline_data = [
-    dict(Task="Production", Start="2026-07-26 06:00", Finish="2026-07-26 09:30", Status="Running"),
-    dict(Task="Tool Change / Maintenance", Start="2026-07-26 09:30", Finish="2026-07-26 10:15", Status="Downtime"),
-    dict(Task="Production", Start="2026-07-26 10:15", Finish="2026-07-26 14:00", Status="Running"),
-]
-df_timeline = pd.DataFrame(timeline_data)
-fig_timeline = px.timeline(df_timeline, x_start="Start", x_end="Finish", y="Task", color="Status", 
-                           color_discrete_map={"Running": "#10B981", "Downtime": "#EF4444"})
+df_timeline = pd.DataFrame(cfg["timeline"])
+fig_timeline = px.timeline(
+    df_timeline, x_start="Start", x_end="Finish", y="Task", color="Status",
+    color_discrete_map={"Running": "#10B981", "Downtime": "#EF4444"}
+)
 fig_timeline.update_yaxes(autorange="reversed")
 fig_timeline.update_layout(height=200, margin=dict(l=10, r=10, t=10, b=10))
 st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar': False})
@@ -80,7 +114,7 @@ st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar'
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 6. DUAL-PANEL OUTPUT & PREDICTIVE TOOL EXPIRY
+# 7. DUAL-PANEL OUTPUT & PREDICTIVE TOOL EXPIRY
 # ---------------------------------------------------------
 col_left, col_right = st.columns(2)
 
@@ -96,8 +130,9 @@ with col_left:
 with col_right:
     st.subheader("🛠️ Predictive Tool & Spindle Expiry")
     
-    face_mill_used = 820 + total_parts
-    driller_used = 310 + total_parts
+    # Tool wear accumulates dynamically with inputted parts
+    face_mill_used = cfg["face_mill_base"] + total_parts
+    driller_used = cfg["driller_base"] + total_parts
     
     st.write("**T01 - Face Mill Spindle (Max 1200 Cycles)**")
     st.progress(min(1.0, face_mill_used / 1200))
@@ -110,10 +145,9 @@ with col_right:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 7. EXCEL REPORT EXPORTER
+# 8. INSTANT EXCEL EXPORTER
 # ---------------------------------------------------------
 st.subheader("💾 Instant Enterprise Excel Exporter")
-st.write("Click below to export line analytics, OEE breakdown, and tool wear into an Excel sheet:")
 
 buffer = io.BytesIO()
 with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
@@ -136,6 +170,6 @@ excel_data = buffer.getvalue()
 st.download_button(
     label="📄 Download Production & OEE Report (.xlsx)",
     data=excel_data,
-    file_name=f"Pricol_OEE_Report_{datetime.now().strftime('%Y%m%d')}.xlsx",
+    file_name=f"Pricol_OEE_Report_{selected_machine.replace(' ', '_')}.xlsx",
     mime="application/vnd.ms-excel"
 )
