@@ -7,10 +7,10 @@ import io
 from datetime import datetime
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIG & STYLING
+# 1. PAGE CONFIG & STYLING (Neutral Branding)
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Pricol 14-Makino Platform",
+    page_title="14-Makino Industrial Platform",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -22,7 +22,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center; color: #0D5C75;'>🏭 PRICOL UNIT III - 14-MAKINO PRODUCTION HUB</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #0D5C75;'>🏭 UNIT III - 14-MAKINO PRODUCTION HUB</h2>", unsafe_allow_html=True)
 st.markdown("---")
 
 # ---------------------------------------------------------
@@ -188,6 +188,6 @@ excel_data = buffer.getvalue()
 st.download_button(
     label="📄 Download Production & OEE Report (.xlsx)",
     data=excel_data,
-    file_name=f"Pricol_{selected_machine}_Report.xlsx",
+    file_name=f"Production_{selected_machine}_Report.xlsx",
     mime="application/vnd.ms-excel"
 )
