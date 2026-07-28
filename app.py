@@ -122,7 +122,7 @@ st.plotly_chart(fig_timeline, use_container_width=True, config={'displayModeBar'
 st.markdown("---")
 
 # ---------------------------------------------------------
-# 7. OUTPUT BREAKDOWN & TOOL HEALTH
+# 7. OUTPUT BREAKDOWN & TOOL HEALTH (High-Contrast Fix)
 # ---------------------------------------------------------
 col_left, col_right = st.columns(2)
 
@@ -131,33 +131,47 @@ with col_left:
     
     if cfg["type"] == "Dual Pallet":
         fig_bar = go.Figure(data=[
-            go.Bar(name=cfg['p1'], x=['Shift Output'], y=[p1_count], marker_color='#0D5C75'),
-            go.Bar(name=cfg['p2'], x=['Shift Output'], y=[p2_count], marker_color='#10B981')
+            go.Bar(
+                name=cfg['p1'], 
+                x=['Shift Output'], 
+                y=[p1_count], 
+                text=[f"{cfg['p1']}: {p1_count}"],
+                textposition='auto',
+                marker_color='#0D5C75'
+            ),
+            go.Bar(
+                name=cfg['p2'], 
+                x=['Shift Output'], 
+                y=[p2_count], 
+                text=[f"{cfg['p2']}: {p2_count}"],
+                textposition='auto',
+                marker_color='#10B981'
+            )
         ])
         fig_bar.update_layout(barmode='stack', height=280, margin=dict(l=10, r=10, t=30, b=10))
     else:
         fig_bar = go.Figure(data=[
-            go.Bar(name=cfg['p1'], x=['Shift Output'], y=[p1_count], marker_color='#0D5C75')
+            go.Bar(
+                name=cfg['p1'], 
+                x=['Shift Output'], 
+                y=[p1_count], 
+                text=[f"{cfg['p1']}: {p1_count}"],
+                textposition='auto',
+                marker_color='#10B981'
+            )
         ])
         fig_bar.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10))
         
+    # FORCE WHITE TEXT FOR DARK THEME VISIBILITY
+    fig_bar.update_layout(
+        font=dict(color="#FFFFFF"),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(tickfont=dict(color='#FFFFFF')),
+        yaxis=dict(tickfont=dict(color='#FFFFFF'))
+    )
+        
     st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
-
-with col_right:
-    st.subheader(f"🛠️ {selected_machine} Tool Life")
-    
-    face_mill_used = cfg["fm"] + total_parts
-    driller_used = cfg["dr"] + total_parts
-    
-    st.write("**T01 - Main Spindle Cutter (Max 1200 Cycles)**")
-    st.progress(min(1.0, face_mill_used / 1200))
-    st.caption(f"Usage: {face_mill_used} / 1200 cycles ({max(0, 1200 - face_mill_used)} remaining)")
-    
-    st.write("**T02 - Carbide Driller (Max 500 Cycles)**")
-    st.progress(min(1.0, driller_used / 500))
-    st.caption(f"Usage: {driller_used} / 500 cycles ({max(0, 500 - driller_used)} remaining)")
-
-st.markdown("---")
 
 # ---------------------------------------------------------
 # 8. EXCEL REPORT EXPORTER
