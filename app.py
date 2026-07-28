@@ -222,7 +222,7 @@ else:
     col_view, col_info = st.columns([2, 1])
 
     with col_view:
-        st.subheader("🖼️ Interactive Deck Preview (10 Complete Slides)")
+        st.subheader("🖼️ Interactive Deck Preview (10)")
         st.markdown(f"""
         <div style="background-color: #1e293b; padding: 30px; border-radius: 10px; border: 1px solid #334155; color: white;">
             <h3 style="color: #38bdf8;">📊 {selected_deck}</h3>
