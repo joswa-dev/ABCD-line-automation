@@ -6,8 +6,6 @@ import plotly.graph_objects as go
 import io
 import pptx
 from pptx import Presentation
-from pptx.util import Inches, Pt
-from pptx.dml.color import RGBColor
 from datetime import datetime
 
 # ---------------------------------------------------------
@@ -31,7 +29,7 @@ st.markdown("""
 # ---------------------------------------------------------
 nav_choice = st.radio(
     "Select Portal", 
-    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20 Complete Decks)"], 
+    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20 Decks)"], 
     horizontal=True
 )
 
@@ -188,7 +186,7 @@ if nav_choice == "🏭 Live 14-Makino Production Hub":
     )
 
 # =========================================================
-# MODE 2: EXECUTIVE PPT GALLERY (10-SLIDE PROFESSIONAL GENERATOR)
+# MODE 2: EXECUTIVE PPT GALLERY (10-SLIDE BUG-FREE GENERATOR)
 # =========================================================
 else:
     st.markdown("<h2 style='text-align: center; color: #0D5C75;'>📚 EXECUTIVE PRESENTATION & STRATEGY GALLERY</h2>", unsafe_allow_html=True)
@@ -251,32 +249,33 @@ else:
         st.write("Download the complete 10-slide PowerPoint file:")
         
         # ---------------------------------------------------------
-        # GENERATE FULL 10-SLIDE PPTX FILE
+        # GENERATE FULL 10-SLIDE PPTX FILE (CORRECTED LOOP)
         # ---------------------------------------------------------
         prs = Presentation()
         deck_title = selected_deck.split(':')[1].strip() if ':' in selected_deck else selected_deck
 
         slides_data = [
-            ("Slide 1: Executive Title", deck_title, "Unit III - Executive Line Automation & Operations Strategy"),
-            ("Slide 2: Strategic Purpose", "Transforming Shop Floor Logging", "• Eliminating manual math errors at shift end.\n• Centralizing live line metrics across all 14 Makino stations.\n• Enabling real-time executive visibility without hardware overhead."),
-            ("Slide 3: Bottleneck Analysis", "Current Floor Pain Points", "• Operators spend 10 minutes filling paper log notes.\n• Data entry team manually re-types paper notes into Excel.\n• Zero early warning for tool wear or unexpected spindle downtime."),
-            ("Slide 4: APC Mechanics", "Dual-Pallet Rotary Indexing", "• Pallet A (PB 444) finishes cutting inside while Pallet B (PC) reloads.\n• Eliminates non-cutting idle time.\n• Software automatically splits Pallet A and Pallet B outputs."),
-            ("Slide 5: OEE Engine", "Mathematical Performance Modeling", "• Availability = Operating Time / Planned Run Time.\n• Performance = Total Cycle Output / Expected Pace.\n• Quality Rate = Passing Castings / Total Processed."),
-            ("Slide 6: Predictive Maintenance", "Tool & Spindle Wear Limits", "• Tracks cumulative cutter impact cycles.\n• T01 Face Mill Spindle limit: 1200 cycles.\n• T02 Carbide Drill limit: 500 cycles."),
-            ("Slide 7: Architecture Blueprint", "Zero-IoT Web Framework", "• Web application accessible on shop tablets and PCs.\n• Bypasses corporate IT laptop lockdown constraints.\n• Python backend processes live OEE and analytics on demand."),
-            ("Slide 8: Financial ROI", "Cost-Benefit Analysis", "• Traditional IoT Sensors & PLC Hardware: $100,000+ investment.\n• Non-IoT Micro-Logging Platform: Zero hardware investment.\n• Saves 120+ operator paper logging hours per month."),
-            ("Slide 9: Rollout Roadmap", "4-Week Implementation Schedule", "• Week 1: Makino 01 to 04 pilot line testing.\n• Week 2: Operator training and UI refinement.\n• Week 3: Full 14-Makino deployment.\n• Week 4: Management review & automated report export."),
-            ("Slide 10: Executive Next Steps", "Action Plan & Approval", "• Approve pilot testing on Makino Dual-Pallet line.\n• Authorize shift-end digital micro-logging transition.\n• Establish weekly automated OEE export review.")
+            ("Executive Title", deck_title, "Unit III - Executive Line Automation & Operations Strategy"),
+            ("Strategic Purpose", "Transforming Shop Floor Logging", "• Eliminating manual math errors at shift end.\n• Centralizing live line metrics across all 14 Makino stations.\n• Enabling real-time executive visibility without hardware overhead."),
+            ("Bottleneck Analysis", "Current Floor Pain Points", "• Operators spend 10 minutes filling paper log notes.\n• Data entry team manually re-types paper notes into Excel.\n• Zero early warning for tool wear or unexpected spindle downtime."),
+            ("APC Mechanics", "Dual-Pallet Rotary Indexing", "• Pallet A (PB 444) finishes cutting inside while Pallet B (PC) reloads.\n• Eliminates non-cutting idle time.\n• Software automatically splits Pallet A and Pallet B outputs."),
+            ("OEE Engine", "Mathematical Performance Modeling", "• Availability = Operating Time / Planned Run Time.\n• Performance = Total Cycle Output / Expected Pace.\n• Quality Rate = Passing Castings / Total Processed."),
+            ("Predictive Maintenance", "Tool & Spindle Wear Limits", "• Tracks cumulative cutter impact cycles.\n• T01 Face Mill Spindle limit: 1200 cycles.\n• T02 Carbide Drill limit: 500 cycles."),
+            ("Architecture Blueprint", "Zero-IoT Web Framework", "• Web application accessible on shop tablets and PCs.\n• Bypasses corporate IT laptop lockdown constraints.\n• Python backend processes live OEE and analytics on demand."),
+            ("Financial ROI", "Cost-Benefit Analysis", "• Traditional IoT Sensors & PLC Hardware: $100,000+ investment.\n• Non-IoT Micro-Logging Platform: Zero hardware investment.\n• Saves 120+ operator paper logging hours per month."),
+            ("Rollout Roadmap", "4-Week Implementation Schedule", "• Week 1: Makino 01 to 04 pilot line testing.\n• Week 2: Operator training and UI refinement.\n• Week 3: Full 14-Makino deployment.\n• Week 4: Management review & automated report export."),
+            ("Executive Next Steps", "Action Plan & Approval", "• Approve pilot testing on Makino Dual-Pallet line.\n• Authorize shift-end digital micro-logging transition.\n• Establish weekly automated OEE export review.")
         ]
 
         bullet_layout = prs.slide_layouts[1]
-        for idx, header, sub_header, content in enumerate(slides_data):
+        for idx, item in enumerate(slides_data):
+            header, sub_header, content = item
             slide = prs.slides.add_slide(bullet_layout)
             shapes = slide.shapes
             title_shape = shapes.title
             body_shape = shapes.placeholders[1]
             
-            title_shape.text = f"{idx+1}. {header}"
+            title_shape.text = f"Slide {idx+1}: {header}"
             tf = body_shape.text_frame
             tf.text = sub_header
             p = tf.add_paragraph()
