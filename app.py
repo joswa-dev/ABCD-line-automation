@@ -6,13 +6,15 @@ import plotly.graph_objects as go
 import io
 import pptx
 from pptx import Presentation
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
 from datetime import datetime
 
 # ---------------------------------------------------------
 # 1. PAGE CONFIG & STYLING
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="14-Makino Industrial & Presentation Hub",
+    page_title="14-Makino Production & Strategy Hub",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -29,7 +31,7 @@ st.markdown("""
 # ---------------------------------------------------------
 nav_choice = st.radio(
     "Select Portal", 
-    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20 Decks)"], 
+    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20 Complete Decks)"], 
     horizontal=True
 )
 
@@ -186,7 +188,7 @@ if nav_choice == "🏭 Live 14-Makino Production Hub":
     )
 
 # =========================================================
-# MODE 2: EXECUTIVE PPT GALLERY (GENUINE PPTX GENERATOR)
+# MODE 2: EXECUTIVE PPT GALLERY (10-SLIDE PROFESSIONAL GENERATOR)
 # =========================================================
 else:
     st.markdown("<h2 style='text-align: center; color: #0D5C75;'>📚 EXECUTIVE PRESENTATION & STRATEGY GALLERY</h2>", unsafe_allow_html=True)
@@ -222,70 +224,79 @@ else:
     col_view, col_info = st.columns([2, 1])
 
     with col_view:
-        st.subheader("🖼️ Interactive Deck Preview")
+        st.subheader("🖼️ Interactive Deck Preview (10 Complete Slides)")
         st.markdown(f"""
-        <div style="background-color: #1e293b; padding: 40px; border-radius: 10px; border: 1px solid #334155; text-align: center; color: white;">
-            <h3>📊 {selected_deck}</h3>
-            <p style="color: #94a3b8;">Slide Overview & Executive Takeaways</p>
-            <div style="margin: 20px 0; padding: 20px; background-color: #0f172a; border-radius: 8px; font-family: monospace; text-align: left;">
-                <b>Key Agenda & Highlights:</b><br/>
-                1. Executive Summary & Shop Floor Bottlenecks<br/>
-                2. Live Line Data Visualizations & OEE Metrics<br/>
-                3. Operational Impact & Zero-Hardware ROI
+        <div style="background-color: #1e293b; padding: 30px; border-radius: 10px; border: 1px solid #334155; color: white;">
+            <h3 style="color: #38bdf8;">📊 {selected_deck}</h3>
+            <p style="color: #94a3b8;"><b>Total Presentation Deck Length:</b> 10 Executive Slides</p>
+            <hr style="border-color: #334155;"/>
+            <div style="background-color: #0f172a; padding: 15px; border-radius: 6px; font-family: sans-serif; font-size: 14px; line-height: 1.8;">
+                <b>Slide Index Included in Download:</b><br/>
+                • <b>Slide 1:</b> Executive Title & Unit Metadata<br/>
+                • <b>Slide 2:</b> Strategic Purpose & Operational Goals<br/>
+                • <b>Slide 3:</b> Shop Floor Bottleneck Analysis<br/>
+                • <b>Slide 4:</b> Dual-Pallet APC Rotary Indexing Mechanics<br/>
+                • <b>Slide 5:</b> Real-time OEE Engine Breakdown (A x P x Q)<br/>
+                • <b>Slide 6:</b> Predictive Tool Life & Cycle Wear Limits<br/>
+                • <b>Slide 7:</b> Non-IoT Web Architecture Blueprint<br/>
+                • <b>Slide 8:</b> Financial ROI & Zero-Hardware Cost Model<br/>
+                • <b>Slide 9:</b> 4-Week Line Rollout Roadmap<br/>
+                • <b>Slide 10:</b> Executive Next Steps & Action Plan
             </div>
-            <p>💡 <i>Click download on the right to grab the valid .pptx file!</i></p>
         </div>
         """, unsafe_allow_html=True)
 
     with col_info:
-        st.subheader("💾 Actions")
-        st.write("Download the complete presentation deck file below:")
+        st.subheader("💾 File Actions")
+        st.write("Download the complete 10-slide PowerPoint file:")
         
         # ---------------------------------------------------------
-        # GENERATE REAL PPTX BINARY FILE
+        # GENERATE FULL 10-SLIDE PPTX FILE
         # ---------------------------------------------------------
         prs = Presentation()
-        
-        # Slide 1: Title
-        title_slide_layout = prs.slide_layouts[0]
-        slide1 = prs.slides.add_slide(title_slide_layout)
-        title1 = slide1.shapes.title
-        subtitle1 = slide1.placeholders[1]
         deck_title = selected_deck.split(':')[1].strip() if ':' in selected_deck else selected_deck
-        title1.text = deck_title
-        subtitle1.text = "Unit III - Executive Line Automation Strategy"
-        
-        # Slide 2: Bullet Highlights
-        bullet_slide_layout = prs.slide_layouts[1]
-        slide2 = prs.slides.add_slide(bullet_slide_layout)
-        shapes2 = slide2.shapes
-        title2 = shapes2.title
-        body2 = shapes2.placeholders[1]
-        title2.text = "Executive Key Takeaways"
-        tf2 = body2.text_frame
-        tf2.text = f"Overview: {ppt_catalog[selected_deck]}"
-        p2 = tf2.add_paragraph()
-        p2.text = "• Line Bottleneck Analysis & Current Challenges."
-        p3 = tf2.add_paragraph()
-        p3.text = "• Transitioning from paper log notes to real-time micro-logging."
-        p4 = tf2.add_paragraph()
-        p4.text = "• Predictive tool wear tracking to eliminate unplanned breakdowns."
-        
-        # Save to buffer
+
+        slides_data = [
+            ("Slide 1: Executive Title", deck_title, "Unit III - Executive Line Automation & Operations Strategy"),
+            ("Slide 2: Strategic Purpose", "Transforming Shop Floor Logging", "• Eliminating manual math errors at shift end.\n• Centralizing live line metrics across all 14 Makino stations.\n• Enabling real-time executive visibility without hardware overhead."),
+            ("Slide 3: Bottleneck Analysis", "Current Floor Pain Points", "• Operators spend 10 minutes filling paper log notes.\n• Data entry team manually re-types paper notes into Excel.\n• Zero early warning for tool wear or unexpected spindle downtime."),
+            ("Slide 4: APC Mechanics", "Dual-Pallet Rotary Indexing", "• Pallet A (PB 444) finishes cutting inside while Pallet B (PC) reloads.\n• Eliminates non-cutting idle time.\n• Software automatically splits Pallet A and Pallet B outputs."),
+            ("Slide 5: OEE Engine", "Mathematical Performance Modeling", "• Availability = Operating Time / Planned Run Time.\n• Performance = Total Cycle Output / Expected Pace.\n• Quality Rate = Passing Castings / Total Processed."),
+            ("Slide 6: Predictive Maintenance", "Tool & Spindle Wear Limits", "• Tracks cumulative cutter impact cycles.\n• T01 Face Mill Spindle limit: 1200 cycles.\n• T02 Carbide Drill limit: 500 cycles."),
+            ("Slide 7: Architecture Blueprint", "Zero-IoT Web Framework", "• Web application accessible on shop tablets and PCs.\n• Bypasses corporate IT laptop lockdown constraints.\n• Python backend processes live OEE and analytics on demand."),
+            ("Slide 8: Financial ROI", "Cost-Benefit Analysis", "• Traditional IoT Sensors & PLC Hardware: $100,000+ investment.\n• Non-IoT Micro-Logging Platform: Zero hardware investment.\n• Saves 120+ operator paper logging hours per month."),
+            ("Slide 9: Rollout Roadmap", "4-Week Implementation Schedule", "• Week 1: Makino 01 to 04 pilot line testing.\n• Week 2: Operator training and UI refinement.\n• Week 3: Full 14-Makino deployment.\n• Week 4: Management review & automated report export."),
+            ("Slide 10: Executive Next Steps", "Action Plan & Approval", "• Approve pilot testing on Makino Dual-Pallet line.\n• Authorize shift-end digital micro-logging transition.\n• Establish weekly automated OEE export review.")
+        ]
+
+        bullet_layout = prs.slide_layouts[1]
+        for idx, header, sub_header, content in enumerate(slides_data):
+            slide = prs.slides.add_slide(bullet_layout)
+            shapes = slide.shapes
+            title_shape = shapes.title
+            body_shape = shapes.placeholders[1]
+            
+            title_shape.text = f"{idx+1}. {header}"
+            tf = body_shape.text_frame
+            tf.text = sub_header
+            p = tf.add_paragraph()
+            p.text = content
+
         ppt_buffer = io.BytesIO()
         prs.save(ppt_buffer)
         ppt_buffer.seek(0)
 
-        clean_filename = selected_deck.split(':')[0].replace(' ', '_') + ".pptx"
+        clean_filename = selected_deck.split(':')[0].replace(' ', '_') + "_10Slides.pptx"
 
         st.download_button(
-            label=f"📥 Download {selected_deck.split(':')[0]} (.pptx)",
+            label=f"📥 Download 10-Slide Deck (.pptx)",
             data=ppt_buffer.getvalue(),
             file_name=clean_filename,
             mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
         )
         
         st.markdown("---")
-        st.markdown("### 📌 Quick Specs:")
-        st.write("• **Format:** Genuine PowerPoint (.pptx)")
-        st.write("• **Audience:** Management & Line Supervisors")
+        st.markdown("### 📌 Deck Specs:")
+        st.write("• **Total Slides:** 10 Complete Slides")
+        st.write("• **Format:** Microsoft PowerPoint (.pptx)")
+        st.write("• **Target:** Management & Senior Engineers")
