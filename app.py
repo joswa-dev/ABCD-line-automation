@@ -4,11 +4,12 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import io
-import base64
+import pptx
+from pptx import Presentation
 from datetime import datetime
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIG
+# 1. PAGE CONFIG & STYLING
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="14-Makino Industrial & Presentation Hub",
@@ -28,7 +29,7 @@ st.markdown("""
 # ---------------------------------------------------------
 nav_choice = st.radio(
     "Select Portal", 
-    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20+ Decks)"], 
+    ["🏭 Live 14-Makino Production Hub", "📚 Executive Presentation Gallery (20 Decks)"], 
     horizontal=True
 )
 
@@ -185,14 +186,13 @@ if nav_choice == "🏭 Live 14-Makino Production Hub":
     )
 
 # =========================================================
-# MODE 2: EXECUTIVE PPT GALLERY (20+ PRESENTATION DECKS)
+# MODE 2: EXECUTIVE PPT GALLERY (GENUINE PPTX GENERATOR)
 # =========================================================
 else:
     st.markdown("<h2 style='text-align: center; color: #0D5C75;'>📚 EXECUTIVE PRESENTATION & STRATEGY GALLERY</h2>", unsafe_allow_html=True)
     st.write("Browse through executive strategy decks, line automation studies, and OEE optimization reports:")
     st.markdown("---")
 
-    # List of 20+ Decks
     ppt_catalog = {
         "PPT 01: 14-Makino Line Efficiency & OEE Master Plan": "Comprehensive breakdown of 14 Makino CNC machines, comparing Single vs Dual Pallet performance.",
         "PPT 02: Eliminating Paper Logs via Web Micro-Logging": "Transitioning shift-end logging from manual paper entries to instant cloud data entry.",
@@ -200,7 +200,7 @@ else:
         "PPT 04: Predictive Tool Life & Spindle Wear Modeling": "Tracking cutter impact cycles mathematically to schedule tool changes before failure.",
         "PPT 05: Non-IoT Digital Twin Architecture": "Achieving $100k industrial visibility without expensive PLC sensors or hardware modifications.",
         "PPT 06: Unplanned Downtime Root Cause Analysis": "Category breakdown of chip clearance delays, maintenance stops, and power cuts.",
-        "PPT 07: Quality & Rejection Rate Optimization": "Scrap reduction techniques across Pump Body (PB 444) and Pressure Cover (PC) castings.",
+        "PPT 07: Quality & Rejection Rate Optimization": "Scrap reduction techniques across Pump Body and Pressure Cover castings.",
         "PPT 08: Shop Floor Ergonomics & Shift Transition": "Reducing 10-minute shift end paperwork burden for shop operators.",
         "PPT 09: Automated Shift Report Generation": "Creating structured Excel audit logs directly from micro-log database entries.",
         "PPT 10: Executive Summary - Line Automation ROI": "Cost-benefit analysis of web dashboard vs traditional manual entry.",
@@ -223,36 +223,69 @@ else:
 
     with col_view:
         st.subheader("🖼️ Interactive Deck Preview")
-        
-        # Interactive Slide Deck Preview Box
         st.markdown(f"""
         <div style="background-color: #1e293b; padding: 40px; border-radius: 10px; border: 1px solid #334155; text-align: center; color: white;">
             <h3>📊 {selected_deck}</h3>
-            <p style="color: #94a3b8;">Slide 1 of 12 - Executive Introduction</p>
-            <div style="margin: 30px 0; padding: 20px; background-color: #0f172a; border-radius: 8px; font-family: monospace;">
-                [ INTERACTIVE SLIDE PREVIEWER ]<br/>
-                • Executive Summary & Bottlenecks<br/>
-                • Line Data Visualizations<br/>
-                • Operational Impact & ROI
+            <p style="color: #94a3b8;">Slide Overview & Executive Takeaways</p>
+            <div style="margin: 20px 0; padding: 20px; background-color: #0f172a; border-radius: 8px; font-family: monospace; text-align: left;">
+                <b>Key Agenda & Highlights:</b><br/>
+                1. Executive Summary & Shop Floor Bottlenecks<br/>
+                2. Live Line Data Visualizations & OEE Metrics<br/>
+                3. Operational Impact & Zero-Hardware ROI
             </div>
-            <p>💡 <i>Use the download button on the right to grab the full .pptx / .pdf file</i></p>
+            <p>💡 <i>Click download on the right to grab the valid .pptx file!</i></p>
         </div>
         """, unsafe_allow_html=True)
 
     with col_info:
         st.subheader("💾 Actions")
-        st.write("Download the presentation to view on your device or share with team members:")
+        st.write("Download the complete presentation deck file below:")
         
-        # Dummy download button representing the deck file
+        # ---------------------------------------------------------
+        # GENERATE REAL PPTX BINARY FILE
+        # ---------------------------------------------------------
+        prs = Presentation()
+        
+        # Slide 1: Title
+        title_slide_layout = prs.slide_layouts[0]
+        slide1 = prs.slides.add_slide(title_slide_layout)
+        title1 = slide1.shapes.title
+        subtitle1 = slide1.placeholders[1]
+        deck_title = selected_deck.split(':')[1].strip() if ':' in selected_deck else selected_deck
+        title1.text = deck_title
+        subtitle1.text = "Unit III - Executive Line Automation Strategy"
+        
+        # Slide 2: Bullet Highlights
+        bullet_slide_layout = prs.slide_layouts[1]
+        slide2 = prs.slides.add_slide(bullet_slide_layout)
+        shapes2 = slide2.shapes
+        title2 = shapes2.title
+        body2 = shapes2.placeholders[1]
+        title2.text = "Executive Key Takeaways"
+        tf2 = body2.text_frame
+        tf2.text = f"Overview: {ppt_catalog[selected_deck]}"
+        p2 = tf2.add_paragraph()
+        p2.text = "• Line Bottleneck Analysis & Current Challenges."
+        p3 = tf2.add_paragraph()
+        p3.text = "• Transitioning from paper log notes to real-time micro-logging."
+        p4 = tf2.add_paragraph()
+        p4.text = "• Predictive tool wear tracking to eliminate unplanned breakdowns."
+        
+        # Save to buffer
+        ppt_buffer = io.BytesIO()
+        prs.save(ppt_buffer)
+        ppt_buffer.seek(0)
+
+        clean_filename = selected_deck.split(':')[0].replace(' ', '_') + ".pptx"
+
         st.download_button(
             label=f"📥 Download {selected_deck.split(':')[0]} (.pptx)",
-            data=f"Sample presentation content for {selected_deck}",
-            file_name=f"{selected_deck.split(':')[0].replace(' ', '_')}.pptx",
+            data=ppt_buffer.getvalue(),
+            file_name=clean_filename,
             mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
         )
         
         st.markdown("---")
         st.markdown("### 📌 Quick Specs:")
-        st.write("• **Slides:** 12-15 Slides")
-        st.write("• **Format:** Microsoft PowerPoint (.pptx)")
+        st.write("• **Format:** Genuine PowerPoint (.pptx)")
         st.write("• **Audience:** Management & Line Supervisors")
